@@ -1,6 +1,8 @@
 package com.scc;
 
 import com.scc.dao.UserDao;
+import com.scc.model.User;
+import com.scc.ui.Manager;
 
 import java.util.Scanner;
 
@@ -18,19 +20,20 @@ public class Main {
         System.out.println("|2. Register              |");
         System.out.println("|3. Exit                  |");
         System.out.println("===========================");
-        System.out.println("Choose an option: ");
+        System.out.print("Choose an option: ");
         String choice = sc.nextLine();
 
         switch (choice){
             case "1":
+                handlelogin();
                 break;
             case "2":
-                System.out.println("Enter new Username: ");
+                System.out.print("Enter new Username: ");
                 String user = sc.nextLine();
-                System.out.println("Enter Password: ");
+                System.out.print("Enter Password: ");
                 String pass = sc.nextLine();
 
-                System.out.println("Select Role [1] MANAGER(ADMIN) [2] CUSTOMER: ");
+                System.out.print("Select Role [1] MANAGER(ADMIN) [2] CUSTOMER: ");
                 int rolechoice = Integer.parseInt(sc.nextLine());
                     String role;
                     switch (rolechoice){
@@ -49,6 +52,25 @@ public class Main {
                     }else {
                         System.out.println("Invalid role Selection");
                     }
+        }
+
+    }
+
+
+    private static void handlelogin(){
+        System.out.print("Enter Username: ");
+        String username = sc.nextLine();
+        System.out.print("Enter Password: ");
+        String password = sc.nextLine();
+
+        User user = userDao.login(username, password);
+
+        if(user != null){
+            System.out.println("\n-> Welcome "+user.username()+" | ROLE: "+user.roles()+"");
+            switch (user.roles()){
+                case "ADMIN" -> new Manager(userDao, sc).display(user);
+                default -> System.out.println("Account roles not found!");
+            }
         }
 
     }
