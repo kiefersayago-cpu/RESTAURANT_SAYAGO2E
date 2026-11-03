@@ -73,6 +73,5 @@ public class Authentication {
                 default -> System.out.println("Account roles not found!");
             }
         }
-
     }
 }

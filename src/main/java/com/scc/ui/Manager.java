@@ -2,7 +2,6 @@ package com.scc.ui;
 
 import com.scc.dao.UserDao;
 import com.scc.model.User;
-
 import java.util.List;
 import java.util.Scanner;
 
@@ -10,13 +9,10 @@ public class Manager {
     private final UserDao userDao;
     private final Scanner scanner;
 
-
     public Manager(UserDao userDao, Scanner scanner){
         this.userDao = userDao;
         this.scanner = scanner;
-
     }
-
 
     public void display(User admin){
         boolean loggedIn = true;
@@ -38,6 +34,8 @@ public class Manager {
 
             switch (choice){
                 case "1" -> viewAllUser();
+                case "2" -> viewPendingUsers();
+                case "3" -> approveUser();
                 default -> System.out.println("-> [ERROR] invalid option");
             }
         }
@@ -60,5 +58,30 @@ public class Manager {
     }
     private void viewAllUser(){
         displayUserTable(userDao.getAllUser(), "ALL REGISTER USER");
+    }
+
+    private void viewPendingUsers(){
+        displayUserTable(userDao.getPendingUser(), "PENDING APPROVALS");
+    }
+
+    private void approveUser(){
+        List<User> pendingUsers = userDao.getPendingUser();
+        displayUserTable(pendingUsers, "PENDING APPROVALS");
+
+        if(pendingUsers.isEmpty()){
+            return;
+        }
+        System.out.print("Enter User Id to approve (or 0 to cancel): ");
+        int userId = scanner.nextInt();
+
+        if (userId == 0){
+            System.out.println("-> Operation Cancelled by the user.");
+        }
+        boolean exits = pendingUsers.stream().anyMatch(u ->u.id() == userId);
+        if (!exits){
+            System.out.println("-> [ERROR] User ID not found.");
+            return;
+        }
+        userDao.approveUser(userId);
     }
 }
