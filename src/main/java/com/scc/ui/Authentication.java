@@ -41,7 +41,7 @@ public class Authentication {
                     String role;
                     switch (rolechoice){
                         case 1:
-                            role = "MANAGER";
+                            role = "ADMIN";
                             break;
                         case 2:
                             role = "CUSTOMER";

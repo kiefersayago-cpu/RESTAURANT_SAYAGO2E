@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class UserDao {
 
@@ -146,7 +147,32 @@ public class UserDao {
         return false;
     }
 
+    public boolean updateUserStatus(int userId, String newroles, String newStatus){
 
+        String sql = "UPDATE users SET roles = ?, status = ? WHERE id = ?";
+
+        try(
+            Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)){
+
+            pstmt.setString(1, newroles.toUpperCase());
+            pstmt.setString(2, newStatus.toUpperCase());
+            pstmt.setInt(3, userId);
+
+            int rowsUpdated = pstmt.executeUpdate();
+            if(rowsUpdated > 0){
+                System.out.println("-> User Id: "+userId+"updated successfully!");
+                return true;
+            }else{
+                System.out.println("-> User ID not found.");
+            }
+            return false;
+
+    }catch (SQLException e){
+            System.err.print("Error Updating User: "+e.getMessage());
+        }
+        return false;
+    }
 
     }
 
