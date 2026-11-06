@@ -1,17 +1,23 @@
 package com.scc.ui;
 
+import com.scc.dao.ActivityLogDao;
 import com.scc.dao.UserDao;
 import com.scc.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
 
 public class Authentication {
 
+    private static final Logger log = LoggerFactory.getLogger(Authentication.class);
     private final UserDao userDao;
+    private final ActivityLogDao logDao;
     private final Scanner sc;
 
-    public Authentication(UserDao userDao, Scanner sc){
+    public Authentication(UserDao userDao, ActivityLogDao logDao, Scanner sc){
         this.userDao = userDao;
+        this.logDao = logDao;
         this.sc = sc;
     }
 
@@ -67,6 +73,7 @@ public class Authentication {
         User user = userDao.login(username, password);
 
         if(user != null){
+            logDao.logActivity(user.id(), user.username(), "USER_LOGIN");
             System.out.println("\n-> Welcome "+user.username()+" | ROLE: "+user.roles()+"");
             switch (user.roles()){
                 case "ADMIN" -> new Manager(userDao, sc).display(user);
