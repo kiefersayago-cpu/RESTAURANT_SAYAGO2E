@@ -12,12 +12,12 @@ public class Authentication {
 
     private static final Logger log = LoggerFactory.getLogger(Authentication.class);
     private final UserDao userDao;
-    private final ActivityLogDao logDao;
+    private ActivityLogDao logDao = new ActivityLogDao();
     private final Scanner sc;
 
     public Authentication(UserDao userDao, ActivityLogDao logDao, Scanner sc){
         this.userDao = userDao;
-        this.logDao = logDao;
+        this.logDao = this.logDao;
         this.sc = sc;
     }
 
@@ -42,7 +42,7 @@ public class Authentication {
                     System.out.print("Enter Password: ");
                     String pass = sc.nextLine();
 
-                    System.out.print("Select Role [1] MANAGER(ADMIN) [2] CUSTOMER: ");
+                    System.out.print("Select Role [1] MANAGER(ADMIN) [2] CUSTOMER [3]REGISTRAR: ");
                     int rolechoice = Integer.parseInt(sc.nextLine());
                     String role;
                     switch (rolechoice){
@@ -51,6 +51,9 @@ public class Authentication {
                             break;
                         case 2:
                             role = "CUSTOMER";
+                            break;
+                        case 3:
+                            role = "REGISTRAR";
                             break;
                         default:
                             role = null;
@@ -76,7 +79,7 @@ public class Authentication {
             logDao.logActivity(user.id(), user.username(), "USER_LOGIN");
             System.out.println("\n-> Welcome "+user.username()+" | ROLE: "+user.roles()+"");
             switch (user.roles()){
-                case "ADMIN" -> new Manager(userDao, sc).display(user);
+                case "ADMIN" -> new Manager(userDao,logDao, sc).display(user);
                 default -> System.out.println("Account roles not found!");
             }
         }
