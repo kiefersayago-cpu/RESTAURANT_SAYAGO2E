@@ -44,8 +44,8 @@ public class Manager {
             System.out.println("|  7. Logout                                       |");
             System.out.println("|  8. View System Audit Logs                       |");
             System.out.println("+--------------------------------------------------+");
-
             System.out.print("Enter choice: ");
+
             int choice = readNumber();
 
             switch (choice) {
@@ -63,7 +63,7 @@ public class Manager {
                             "USER_LOGOUT"
                     );
 
-                    System.out.println("\nLogging out from Manager Dashboard...");
+                    System.out.println("Logging out from Manager Dashboard...");
                     running = false;
                 }
 
@@ -76,39 +76,28 @@ public class Manager {
 
     // VIEW ALL USERS
     private void viewAllUsers() {
-        System.out.println("\n=============== ALL REGISTERED USERS ===============");
+        System.out.println("\n+--------------------------------------------------+");
+        System.out.println("|                ALL REGISTERED USERS              |");
+        System.out.println("+--------------------------------------------------+");
 
-        List<User> users = userDao.getAllUser();
-
-        if (users == null || users.isEmpty()) {
-            System.out.println("No registered users found.");
-            return;
-        }
-
-        System.out.println("+------+----------------+------------+------------+");
-        System.out.printf("| %-4s | %-14s | %-10s | %-10s |%n",
-                "ID", "Username", "Role", "Status");
-        System.out.println("+------+----------------+------------+------------+");
-
-        for (User user : users) {
-            System.out.printf("| %-4d | %-14s | %-10s | %-10s |%n",
-                    user.id(),
-                    user.username(),
-                    user.roles(),
-                    user.status());
-        }
-
-        System.out.println("+------+----------------+------------+------------+");
+        displayUsers(userDao.getAllUser());
     }
 
     // VIEW PENDING USERS
     private void viewPendingUsers() {
-        System.out.println("\n=============== PENDING USERS ===============");
+        System.out.println("\n+--------------------------------------------------+");
+        System.out.println("|                   PENDING USERS                  |");
+        System.out.println("+--------------------------------------------------+");
 
-        List<User> users = userDao.getPendingUser();
+        displayUsers(userDao.getPendingUser());
+    }
+
+    // DISPLAY USERS
+    private void displayUsers(List<User> users) {
 
         if (users == null || users.isEmpty()) {
-            System.out.println("No pending users found.");
+            System.out.println("| No registered users found.                       |");
+            System.out.println("+--------------------------------------------------+");
             return;
         }
 
@@ -144,7 +133,7 @@ public class Manager {
 
             System.out.println("User approved successfully.");
         } else {
-            System.out.println("Unable to approve user.");
+            System.out.println("Unable to approve user. Check the ID or status.");
         }
     }
 
@@ -153,44 +142,68 @@ public class Manager {
         System.out.println("\n+--------------------------------------------------+");
         System.out.println("|                    ADD NEW USER                  |");
         System.out.println("+--------------------------------------------------+");
-        System.out.println("| This option is not yet connected to your        |");
-        System.out.println("| registration method.                            |");
+        System.out.println("| Public registration is for customers only.      |");
+        System.out.println("| Use the registration menu to create an account. |");
         System.out.println("+--------------------------------------------------+");
     }
 
     // UPDATE USER ROLE / STATUS
     private void updateUser() {
-        System.out.println("\n=============== UPDATE USER ===============");
+        System.out.println("\n+--------------------------------------------------+");
+        System.out.println("|                    UPDATE USER                   |");
+        System.out.println("+--------------------------------------------------+");
 
         List<User> users = userDao.getAllUser();
 
         if (users == null || users.isEmpty()) {
-            System.out.println("No registered users found.");
+            System.out.println("| No registered users found.                       |");
+            System.out.println("+--------------------------------------------------+");
             return;
         }
 
-        System.out.println("+------+----------------+------------+------------+");
-        System.out.printf("| %-4s | %-14s | %-10s | %-10s |%n",
-                "ID", "Username", "Role", "Status");
-        System.out.println("+------+----------------+------------+------------+");
-
-        for (User user : users) {
-            System.out.printf("| %-4d | %-14s | %-10s | %-10s |%n",
-                    user.id(),
-                    user.username(),
-                    user.roles(),
-                    user.status());
-        }
-
-        System.out.println("+------+----------------+------------+------------+");
+        displayUsers(users);
 
         System.out.print("\nEnter User ID to update: ");
         int userId = readNumber();
 
-        System.out.print("Enter new role (MANAGER[ADMIN]/REGISTRAR/CUSTOMER): ");
+        User selected = null;
+
+        for (User user : users) {
+            if (user.id() == userId) {
+                selected = user;
+                break;
+            }
+        }
+
+        if (selected == null) {
+            System.out.println("User ID not found.");
+            return;
+        }
+
+        if (selected.id() == admin.id()) {
+            System.out.println("You cannot change your own manager account here.");
+            return;
+        }
+
+        System.out.println("\n+--------------------------------------------------+");
+        System.out.println("|                  AVAILABLE ROLES                 |");
+        System.out.println("+--------------------------------------------------+");
+        System.out.println("| MANAGER                                          |");
+        System.out.println("| REGISTRAR                                        |");
+        System.out.println("| CUSTOMER                                         |");
+        System.out.println("+--------------------------------------------------+");
+        System.out.print("Enter new role: ");
+
         String role = scanner.nextLine().trim().toUpperCase();
 
-        System.out.print("Enter new status (APPROVED/PENDING): ");
+        System.out.println("\n+--------------------------------------------------+");
+        System.out.println("|                 AVAILABLE STATUS                 |");
+        System.out.println("+--------------------------------------------------+");
+        System.out.println("| APPROVED                                         |");
+        System.out.println("| PENDING                                          |");
+        System.out.println("+--------------------------------------------------+");
+        System.out.print("Enter new status: ");
+
         String status = scanner.nextLine().trim().toUpperCase();
 
         if (userDao.updateUserStatus(userId, role, status)) {
@@ -202,9 +215,9 @@ public class Manager {
                             + " | Status: " + status
             );
 
-            System.out.println("\nUser updated successfully.");
+            System.out.println("User updated successfully.");
         } else {
-            System.out.println("\nUnable to update user.");
+            System.out.println("Unable to update user. Check the role and status.");
         }
     }
 
@@ -213,9 +226,42 @@ public class Manager {
         System.out.println("\n+--------------------------------------------------+");
         System.out.println("|                  DELETE ACCOUNT                  |");
         System.out.println("+--------------------------------------------------+");
-        System.out.println("| This option is not yet connected to your        |");
-        System.out.println("| UserDao delete method.                          |");
-        System.out.println("+--------------------------------------------------+");
+
+        List<User> users = userDao.getAllUser();
+
+        if (users == null || users.isEmpty()) {
+            System.out.println("No registered users found.");
+            return;
+        }
+
+        displayUsers(users);
+
+        System.out.print("\nEnter User ID to delete: ");
+        int userId = readNumber();
+
+        if (userId == admin.id()) {
+            System.out.println("You cannot delete your own manager account.");
+            return;
+        }
+
+        System.out.print("Are you sure? (Y/N): ");
+        String confirm = scanner.nextLine().trim();
+
+        if (confirm.equalsIgnoreCase("Y")) {
+            if (userDao.deleteUser(userId)) {
+                logDao.logActivity(
+                        admin.id(),
+                        admin.username(),
+                        "USER_DELETED: User ID " + userId
+                );
+
+                System.out.println("User deleted successfully.");
+            } else {
+                System.out.println("Unable to delete user.");
+            }
+        } else {
+            System.out.println("Delete operation cancelled.");
+        }
     }
 
     // VIEW SYSTEM AUDIT LOGS WITH PAGINATION
@@ -252,8 +298,8 @@ public class Manager {
             System.out.println("| 2. Next Page");
             System.out.println("| 3. Back to Dashboard");
             System.out.println("+--------------------------------------------------+");
-
             System.out.print("Enter choice: ");
+
             int choice = readNumber();
 
             switch (choice) {
@@ -264,7 +310,6 @@ public class Manager {
                         System.out.println("Already on the first page.");
                     }
                 }
-
                 case 2 -> {
                     if (page < totalPages) {
                         page++;
@@ -272,9 +317,7 @@ public class Manager {
                         System.out.println("Already on the last page.");
                     }
                 }
-
                 case 3 -> viewing = false;
-
                 default -> System.out.println("Invalid choice.");
             }
         }
